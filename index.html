@@ -7,28 +7,29 @@
 
   <!-- PWA & iOS App Meta Tags -->
   <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#db1a3b" />
+  <meta name="theme-color" content="#121217" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Zyklus" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png" />
 
   <style>
     :root {
-      --crimson: #db1a3b;
-      --crimson-dark: #9e0a24;
-      --rose-bg: #ffe8ed;
-      --fertile: #29a69e;
-      --fertile-bg: #e3f7f5;
-      --ovulation: #8552d9;
-      --ovulation-bg: #f1ebfc;
-      --luteal: #e08f3d;
-      --ios-bg: #f2f2f7;
-      --ios-card: #ffffff;
-      --ios-text: #1c1c1e;
-      --ios-sub: #6c6c70;
-      --ios-border: #e5e5ea;
+      --crimson: #ff2d55;
+      --crimson-dark: #b81434;
+      --rose-bg: rgba(255, 45, 85, 0.16);
+      --fertile: #30d158;
+      --fertile-bg: rgba(48, 209, 88, 0.15);
+      --ovulation: #bf5af2;
+      --ovulation-bg: rgba(191, 90, 242, 0.18);
+      --luteal: #ff9f0a;
+      --ios-bg: #000000;
+      --ios-card: #1c1c1e;
+      --ios-card-secondary: #2c2c2e;
+      --ios-text: #ffffff;
+      --ios-sub: #8e8e93;
+      --ios-border: #38383a;
     }
 
     * {
@@ -62,29 +63,31 @@
       background: var(--ios-bg);
     }
 
-    /* iOS Safe Area Aware Header */
+    /* iOS Safe Area Aware Header (Dark Mode) */
     .nav-header {
       padding: calc(env(safe-area-inset-top, 14px) + 12px) 20px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--ios-bg);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
       position: sticky;
       top: 0;
       z-index: 50;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      border-bottom: 1px solid var(--ios-border);
     }
 
     .nav-title {
       font-size: 24px;
       font-weight: 800;
       letter-spacing: -0.5px;
+      color: #fff;
     }
 
     .today-jump-btn {
       background: var(--rose-bg);
       color: var(--crimson);
-      border: none;
+      border: 1px solid rgba(255, 45, 85, 0.3);
       border-radius: 99px;
       padding: 6px 14px;
       font-size: 13px;
@@ -106,7 +109,7 @@
       height: 28px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
-      box-shadow: 0 3px 8px rgba(219, 26, 59, 0.42);
+      box-shadow: 0 3px 10px rgba(255, 45, 85, 0.45);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -118,8 +121,8 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: rgba(219, 26, 59, 0.13);
-      border: 1.8px solid rgba(219, 26, 59, 0.45);
+      background: rgba(255, 45, 85, 0.18);
+      border: 1.8px solid rgba(255, 45, 85, 0.55);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -132,7 +135,7 @@
       height: 36px;
       border-radius: 50%;
       background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
-      box-shadow: 0 4px 10px rgba(219, 26, 59, 0.45);
+      box-shadow: 0 4px 12px rgba(255, 45, 85, 0.5);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -151,7 +154,8 @@
       background: var(--ios-card);
       border-radius: 20px;
       padding: 16px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
     .tag-pill {
@@ -160,8 +164,9 @@
       font-weight: 800;
       padding: 3px 8px;
       border-radius: 99px;
-      background: rgba(219, 26, 59, 0.14);
+      background: rgba(255, 45, 85, 0.22);
       color: var(--crimson);
+      border: 1px solid rgba(255, 45, 85, 0.4);
     }
 
     /* Buttons */
@@ -169,37 +174,38 @@
       width: 100%;
       border: none;
       border-radius: 14px;
-      padding: 13px 14px;
+      padding: 14px;
       font-size: 14px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
-      transition: transform 0.12s ease;
+      transition: transform 0.12s ease, opacity 0.15s ease;
     }
 
     .action-btn:active {
       transform: scale(0.98);
+      opacity: 0.9;
     }
 
     .action-btn.start-primary {
       background: linear-gradient(90deg, var(--crimson), var(--crimson-dark));
       color: #fff;
-      box-shadow: 0 4px 12px rgba(219, 26, 59, 0.28);
+      box-shadow: 0 4px 16px rgba(255, 45, 85, 0.35);
     }
 
     .action-btn.start-active {
       background: var(--rose-bg);
       color: var(--crimson);
-      border: 1.4px solid rgba(219, 26, 59, 0.35);
+      border: 1.5px solid rgba(255, 45, 85, 0.5);
     }
 
     .action-btn.end-btn {
-      background: var(--rose-bg);
-      color: var(--crimson-dark);
-      border: 1.4px solid rgba(158, 10, 36, 0.28);
-      margin-top: 9px;
+      background: rgba(184, 20, 52, 0.22);
+      color: #ff6b8b;
+      border: 1.5px solid rgba(184, 20, 52, 0.45);
+      margin-top: 10px;
     }
 
     /* Calendar Grid */
@@ -207,16 +213,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .cal-nav-btn {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      border: none;
-      background: var(--rose-bg);
-      color: var(--crimson);
+      border: 1px solid var(--ios-border);
+      background: var(--ios-card-secondary);
+      color: #fff;
       font-weight: 800;
       font-size: 16px;
       cursor: pointer;
@@ -232,7 +238,7 @@
       font-size: 11px;
       font-weight: 700;
       color: var(--ios-sub);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .cal-days {
@@ -255,12 +261,12 @@
     }
 
     .cal-cell:hover {
-      background: rgba(0, 0, 0, 0.03);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     .cal-cell.selected {
       border-color: var(--crimson);
-      background: rgba(219, 26, 59, 0.05);
+      background: rgba(255, 45, 85, 0.12);
     }
 
     .cal-circle {
@@ -274,12 +280,13 @@
       font-size: 13.5px;
       font-weight: 600;
       position: relative;
+      color: #ffffff;
     }
 
     .cal-circle.period-start {
       background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
       color: #fff;
-      box-shadow: 0 2px 6px rgba(219, 26, 59, 0.45);
+      box-shadow: 0 2px 8px rgba(255, 45, 85, 0.6);
       font-weight: 800;
     }
 
@@ -287,30 +294,32 @@
       background: var(--crimson-dark);
       color: #fff;
       font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .cal-circle.period-day {
-      background: rgba(219, 26, 59, 0.22);
-      color: var(--crimson-dark);
+      background: rgba(255, 45, 85, 0.3);
+      color: #ff859e;
       font-weight: 700;
     }
 
     .cal-circle.pred-period {
       border: 1.6px dashed var(--crimson);
-      background: rgba(255, 232, 237, 0.6);
-      color: var(--crimson);
+      background: rgba(255, 45, 85, 0.12);
+      color: #ff859e;
     }
 
     .cal-circle.ovulation {
       background: var(--ovulation-bg);
-      color: var(--ovulation);
+      color: #d18aff;
       font-weight: 800;
-      border: 1.5px solid rgba(133, 82, 217, 0.4);
+      border: 1.5px solid rgba(191, 90, 242, 0.5);
     }
 
     .cal-circle.fertile {
       background: var(--fertile-bg);
-      color: var(--fertile);
+      color: #5deb82;
+      border: 1px solid rgba(48, 209, 88, 0.3);
     }
 
     .cal-sub-label {
@@ -328,19 +337,19 @@
       font-size: 11px;
       color: var(--ios-sub);
       align-items: center;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid var(--ios-border);
     }
 
     .cal-legend-item {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       font-weight: 600;
     }
 
-    /* History Tab */
+    /* History Tab (Dark Mode) */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -351,6 +360,7 @@
       background: var(--ios-card);
       border-radius: 16px;
       padding: 12px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .chart-bars {
@@ -367,7 +377,7 @@
       position: absolute;
       left: 0;
       right: 0;
-      border-top: 1.5px dashed #8e8e93;
+      border-top: 1.5px dashed var(--ios-sub);
       z-index: 1;
       pointer-events: none;
     }
@@ -384,6 +394,7 @@
       width: 26px;
       border-radius: 6px 6px 4px 4px;
       background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
+      box-shadow: 0 2px 8px rgba(255, 45, 85, 0.35);
     }
 
     .history-item {
@@ -393,21 +404,22 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .progress-bar-bg {
       height: 8px;
-      background: #e5e5ea;
+      background: var(--ios-card-secondary);
       border-radius: 99px;
       overflow: hidden;
       display: flex;
     }
 
-    /* Tab Bar */
+    /* Tab Bar (Dark Glassmorphism) */
     .tab-bar {
       height: 64px;
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(16px);
+      background: rgba(28, 28, 30, 0.88);
+      backdrop-filter: blur(20px);
       border-top: 1px solid var(--ios-border);
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -469,14 +481,12 @@
   </div>
 
   <script>
-    // Service Worker Registration for PWA Offline Support
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch((err) => console.log('SW registration failed:', err));
       });
     }
 
-    // ==================== LOCAL STORAGE PERSISTENCE ====================
     const STORAGE_KEY = 'zyklustracker_periods_pwa';
     const SETTINGS_KEY = 'zyklustracker_settings_pwa';
 
@@ -488,7 +498,6 @@
     let defaultCycleLength = 28;
     let defaultPeriodLength = 5;
 
-    // Load Settings
     const savedSettings = localStorage.getItem(SETTINGS_KEY);
     if (savedSettings) {
       try {
@@ -498,7 +507,6 @@
       } catch (e) {}
     }
 
-    // Load Period Records (with realistic fallback)
     let periodRecords = [];
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
@@ -528,7 +536,6 @@
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({ defaultCycleLength, defaultPeriodLength }));
     }
 
-    // ==================== HELPER FUNCTIONS ====================
     function startOfDay(d) {
       return new Date(d.getFullYear(), d.getMonth(), d.getDate());
     }
@@ -558,7 +565,6 @@
       return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`;
     }
 
-    // ==================== CYCLE CALCULATOR ====================
     function getSortedPeriods() {
       return [...periodRecords].sort((a, b) => a.startDate - b.startDate);
     }
@@ -725,15 +731,14 @@
 
     function getPhaseInfo(date = today) {
       const st = getDayState(date);
-      if (st.isPeriodDay) return { name: "Menstruation", color: "#db1a3b" };
-      if (st.isOvulation) return { name: "Eisprungtag", color: "#8552d9" };
-      if (st.isFertile) return { name: "Fruchtbare Phase", color: "#29a69e" };
+      if (st.isPeriodDay) return { name: "Menstruation", color: "#ff2d55" };
+      if (st.isOvulation) return { name: "Eisprungtag", color: "#bf5af2" };
+      if (st.isFertile) return { name: "Fruchtbare Phase", color: "#30d158" };
       const ov = getOvulationDate();
-      if (ov && date < ov) return { name: "Follikelphase", color: "#ec7088" };
-      return { name: "Lutealphase", color: "#e08f3d" };
+      if (ov && date < ov) return { name: "Follikelphase", color: "#ff375f" };
+      return { name: "Lutealphase", color: "#ff9f0a" };
     }
 
-    // ==================== ACTIONS ====================
     function togglePeriodStartOnSelectedDate() {
       const target = startOfDay(selectedDate);
       const idx = periodRecords.findIndex(r => sameDay(r.startDate, target));
@@ -808,7 +813,6 @@
       renderAll();
     }
 
-    // ==================== RENDERING ====================
     function renderAll() {
       const container = document.getElementById("appContent");
       if (currentTab === 0) container.innerHTML = renderCalendarHomeTab();
@@ -816,7 +820,6 @@
       else container.innerHTML = renderSettingsTab();
     }
 
-    // ---- TAB 0: KALENDER-STARTSEITE ----
     function renderCalendarHomeTab() {
       const cDay = getCurrentCycleDay(today) || 1;
       const phase = getPhaseInfo(today);
@@ -853,9 +856,9 @@
 
         let subHtml = "";
         if (st.isPeriodStart) subHtml = `<span style="color:var(--crimson);">START</span>`;
-        else if (st.isPeriodEnd) subHtml = `<span style="color:var(--crimson-dark);">ENDE</span>`;
+        else if (st.isPeriodEnd) subHtml = `<span style="color:#ff6b8b;">ENDE</span>`;
         else if (st.isPredictedStart) subHtml = `<span style="color:var(--crimson);">💧</span>`;
-        else if (st.isOvulation) subHtml = `<span style="color:var(--ovulation);">★</span>`;
+        else if (st.isOvulation) subHtml = `<span style="color:#bf5af2;">★</span>`;
 
         cellsHtml += `
           <div class="cal-cell ${isSel ? "selected" : ""}" onclick="selectCalendarDay(${curDate.getTime()})">
@@ -895,7 +898,7 @@
         <div class="ios-card">
           <div class="cal-header">
             <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-            <strong style="font-size:17px; text-transform:capitalize;">${monthLabel}</strong>
+            <strong style="font-size:17px; text-transform:capitalize; color:#fff;">${monthLabel}</strong>
             <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
           </div>
 
@@ -913,11 +916,11 @@
               <span>Start (Tag 1)</span>
             </div>
             <div class="cal-legend-item">
-              <span style="width:12px; height:12px; border-radius:50%; background:var(--crimson-dark); display:inline-block;"></span>
+              <span style="width:12px; height:12px; border-radius:50%; background:var(--crimson-dark); display:inline-block; border:1px solid rgba(255,255,255,0.4);"></span>
               <span>Ende</span>
             </div>
             <div class="cal-legend-item">
-              <span style="width:12px; height:12px; border-radius:50%; background:rgba(219,26,59,0.22); display:inline-block;"></span>
+              <span style="width:12px; height:12px; border-radius:50%; background:rgba(255,45,85,0.3); display:inline-block;"></span>
               <span>Periode</span>
             </div>
             <div class="cal-legend-item">
@@ -925,7 +928,7 @@
               <span>Prognose</span>
             </div>
             <div class="cal-legend-item">
-              <span style="color:var(--ovulation); font-weight:900;">★</span>
+              <span style="color:#bf5af2; font-weight:900;">★</span>
               <span>Eisprung</span>
             </div>
           </div>
@@ -934,18 +937,17 @@
         <div class="ios-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <div>
-              <div style="font-size:14px; font-weight:800;">${formatDateFull(selectedDate)}</div>
+              <div style="font-size:14px; font-weight:800; color:#fff;">${formatDateFull(selectedDate)}</div>
               <div style="font-size:11.5px; color:var(--ios-sub);">
                 ${selState.cycleDay ? `Zyklustag ${selState.cycleDay}` : "Vor dem 1. Zyklus"}
               </div>
             </div>
             ${selState.isPeriodStart
               ? `<span class="tag-pill">START • TAG 1</span>`
-              : (selState.isPeriodEnd ? `<span class="tag-pill" style="background:rgba(158,10,36,0.15); color:var(--crimson-dark);">ENDE DER BLUTUNG</span>` : "")
+              : (selState.isPeriodEnd ? `<span class="tag-pill" style="background:rgba(184,20,52,0.25); color:#ff6b8b; border-color:rgba(184,20,52,0.5);">ENDE DER BLUTUNG</span>` : "")
             }
           </div>
 
-          <!-- Button 1: Start der Menstruation -->
           <button class="action-btn ${selState.isPeriodStart ? "start-active" : "start-primary"}" onclick="togglePeriodStartOnSelectedDate()">
             <span style="display:flex; align-items:center; gap:9px;">
               <span class="red-symbol-badge" style="width:24px; height:24px;">${dropSvg(12)}</span>
@@ -954,7 +956,6 @@
             <span>${selState.isPeriodStart ? "✕" : "Tag 1"}</span>
           </button>
 
-          <!-- Button 2: Ende der Menstruation -->
           <button class="action-btn end-btn" onclick="setPeriodEndOnSelectedDate()">
             <span style="display:flex; align-items:center; gap:9px;">
               <span style="width:24px; height:24px; border-radius:50%; background:var(--crimson-dark); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11px;">⚑</span>
@@ -966,7 +967,6 @@
       `;
     }
 
-    // ---- TAB 1: ZYKLUS-VERLAUF ----
     function renderHistoryTab() {
       const summaries = getCycleSummaries();
       const completed = summaries.filter(s => s.cycleLength !== null).slice().reverse();
@@ -988,7 +988,7 @@
             <div style="font-size:10px; color:var(--ios-sub);">Norm: 3–7 T.</div>
           </div>
           <div class="stat-tile">
-            <div style="font-size:10px; font-weight:700; color:var(--fertile);">📈 Schwankung</div>
+            <div style="font-size:10px; font-weight:700; color:#30d158;">📈 Schwankung</div>
             <div style="font-size:18px; font-weight:900; margin-top:4px;">±${variation} T.</div>
             <div style="font-size:10px; color:var(--ios-sub);">${variation <= 7 ? "Regelmäßig" : "Variabel"}</div>
           </div>
@@ -997,7 +997,7 @@
         <div class="ios-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <div style="font-size:15px; font-weight:800;">Zykluslängen im Verlauf</div>
+              <div style="font-size:15px; font-weight:800; color:#fff;">Zykluslängen im Verlauf</div>
               <div style="font-size:11px; color:var(--ios-sub);">Vergangene abgeschlossene Menstruationszyklen</div>
             </div>
             <span class="red-symbol-badge" style="width:24px; height:24px;">${dropSvg(12)}</span>
@@ -1010,7 +1010,7 @@
               const mLabel = item.startDate.toLocaleDateString("de-DE", { month: "short", year: "2-digit" });
               return `
                 <div class="chart-bar-col">
-                  <span style="font-size:11px; font-weight:800;">${item.cycleLength}</span>
+                  <span style="font-size:11px; font-weight:800; color:#fff;">${item.cycleLength}</span>
                   <div class="chart-bar" style="height:${h}px;"></div>
                   <span style="font-size:10px; color:var(--ios-sub);">${mLabel}</span>
                 </div>
@@ -1019,7 +1019,7 @@
           </div>
         </div>
 
-        <div style="font-size:15px; font-weight:800; padding:0 4px;">
+        <div style="font-size:15px; font-weight:800; padding:0 4px; color:#fff;">
           Vergangene &amp; aktuelle Zyklen (${summaries.length})
         </div>
 
@@ -1032,7 +1032,7 @@
                 <span class="red-symbol-badge" style="width:32px; height:32px;">${dropSvg(15)}</span>
                 <div style="flex:1;">
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <strong style="font-size:13.5px;">Start: ${formatDateMedium(s.startDate)}</strong>
+                    <strong style="font-size:13.5px; color:#fff;">Start: ${formatDateMedium(s.startDate)}</strong>
                     ${s.isCurrentCycle ? `<span class="tag-pill">AKTUELL</span>` : ""}
                   </div>
                   <div style="font-size:11.5px; color:var(--ios-sub); margin-top:2px;">
@@ -1064,13 +1064,12 @@
       `;
     }
 
-    // ---- TAB 2: EINSTELLUNGEN ----
     function renderSettingsTab() {
       return `
         <div class="ios-card">
-          <div style="font-size:15px; font-weight:800; margin-bottom:8px;">Zyklus-Standardwerte</div>
+          <div style="font-size:15px; font-weight:800; margin-bottom:8px; color:#fff;">Zyklus-Standardwerte</div>
           <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--ios-border);">
-            <span style="font-size:13.5px; font-weight:600;">Standard-Zykluslänge: <strong>${defaultCycleLength} Tage</strong></span>
+            <span style="font-size:13.5px; font-weight:600;">Standard-Zykluslänge: <strong style="color:var(--crimson);">${defaultCycleLength} Tage</strong></span>
             <div style="display:flex; gap:6px;">
               <button class="cal-nav-btn" onclick="defaultCycleLength=Math.max(21,defaultCycleLength-1);saveState();renderAll();">−</button>
               <button class="cal-nav-btn" onclick="defaultCycleLength=Math.min(40,defaultCycleLength+1);saveState();renderAll();">+</button>
@@ -1078,7 +1077,7 @@
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
-            <span style="font-size:13.5px; font-weight:600;">Standard-Blutungsdauer: <strong>${defaultPeriodLength} Tage</strong></span>
+            <span style="font-size:13.5px; font-weight:600;">Standard-Blutungsdauer: <strong style="color:var(--crimson);">${defaultPeriodLength} Tage</strong></span>
             <div style="display:flex; gap:6px;">
               <button class="cal-nav-btn" onclick="defaultPeriodLength=Math.max(2,defaultPeriodLength-1);saveState();renderAll();">−</button>
               <button class="cal-nav-btn" onclick="defaultPeriodLength=Math.min(10,defaultPeriodLength+1);saveState();renderAll();">+</button>
@@ -1087,12 +1086,10 @@
         </div>
 
         <div class="ios-card">
-          <div style="font-size:15px; font-weight:800; margin-bottom:8px;">PWA-Installation auf iPhone</div>
+          <div style="font-size:15px; font-weight:800; margin-bottom:8px; color:#fff;">PWA auf dem iPhone</div>
           <div style="font-size:12.5px; color:var(--ios-sub); line-height:1.6;">
-            1. Öffne die Seite im <strong>Safari-Browser</strong> auf deinem iPhone.<br/>
-            2. Tippe unten in der Mitte auf das <strong>Teilen-Symbol</strong> (Quadrat mit Pfeil nach oben).<br/>
-            3. Wähle <strong>„Zum Home-Bildschirm“</strong> und tippe auf <strong>Hinzufügen</strong>.<br/>
-            4. Die App erscheint mit eigenem App-Icon auf deinem Homescreen und läuft dauerhaft offline ohne Ablaufdatum!
+            Die App läuft im edlen OLED-Dark-Mode.<br/>
+            Alle Daten bleiben 100% privat im lokalen Speicher deines Geräts.
           </div>
         </div>
       `;
@@ -1102,4 +1099,3 @@
   </script>
 </body>
 </html>
-
