@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ZyklusTracker</title>
+
+  <!-- PWA & iOS App Meta Tags -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#db1a3b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Zyklus" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png" />
+
+  <style>
+    :root {
+      --crimson: #db1a3b;
+      --crimson-dark: #9e0a24;
+      --rose-bg: #ffe8ed;
+      --fertile: #29a69e;
+      --fertile-bg: #e3f7f5;
+      --ovulation: #8552d9;
+      --ovulation-bg: #f1ebfc;
+      --luteal: #e08f3d;
+      --ios-bg: #f2f2f7;
+      --ios-card: #ffffff;
+      --ios-text: #1c1c1e;
+      --ios-sub: #6c6c70;
+      --ios-border: #e5e5ea;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--ios-bg);
+      color: var(--ios-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .app-viewport {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--ios-bg);
+    }
+
+    /* iOS Safe Area Aware Header */
+    .nav-header {
+      padding: calc(env(safe-area-inset-top, 14px) + 12px) 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--ios-bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .today-jump-btn {
+      background: var(--rose-bg);
+      color: var(--crimson);
+      border: none;
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .app-content {
+      flex: 1;
+      padding: 14px 16px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Red Symbol Styles */
+    .red-symbol-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+      box-shadow: 0 3px 8px rgba(219, 26, 59, 0.42);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .red-symbol-prominent {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(219, 26, 59, 0.13);
+      border: 1.8px solid rgba(219, 26, 59, 0.45);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .red-symbol-prominent-inner {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
+      box-shadow: 0 4px 10px rgba(219, 26, 59, 0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .red-symbol-prominent-inner span {
+      font-size: 6.5px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      margin-top: 1px;
+    }
+
+    .ios-card {
+      background: var(--ios-card);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .tag-pill {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: rgba(219, 26, 59, 0.14);
+      color: var(--crimson);
+    }
+
+    /* Buttons */
+    .action-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .action-btn.start-primary {
+      background: linear-gradient(90deg, var(--crimson), var(--crimson-dark));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(219, 26, 59, 0.28);
+    }
+
+    .action-btn.start-active {
+      background: var(--rose-bg);
+      color: var(--crimson);
+      border: 1.4px solid rgba(219, 26, 59, 0.35);
+    }
+
+    .action-btn.end-btn {
+      background: var(--rose-bg);
+      color: var(--crimson-dark);
+      border: 1.4px solid rgba(158, 10, 36, 0.28);
+      margin-top: 9px;
+    }
+
+    /* Calendar Grid */
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .cal-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--rose-bg);
+      color: var(--crimson);
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ios-sub);
+      margin-bottom: 6px;
+    }
+
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px 4px;
+    }
+
+    .cal-cell {
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+      user-select: none;
+    }
+
+    .cal-cell:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    .cal-cell.selected {
+      border-color: var(--crimson);
+      background: rgba(219, 26, 59, 0.05);
+    }
+
+    .cal-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 13.5px;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .cal-circle.period-start {
+      background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(219, 26, 59, 0.45);
+      font-weight: 800;
+    }
+
+    .cal-circle.period-end {
+      background: var(--crimson-dark);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .cal-circle.period-day {
+      background: rgba(219, 26, 59, 0.22);
+      color: var(--crimson-dark);
+      font-weight: 700;
+    }
+
+    .cal-circle.pred-period {
+      border: 1.6px dashed var(--crimson);
+      background: rgba(255, 232, 237, 0.6);
+      color: var(--crimson);
+    }
+
+    .cal-circle.ovulation {
+      background: var(--ovulation-bg);
+      color: var(--ovulation);
+      font-weight: 800;
+      border: 1.5px solid rgba(133, 82, 217, 0.4);
+    }
+
+    .cal-circle.fertile {
+      background: var(--fertile-bg);
+      color: var(--fertile);
+    }
+
+    .cal-sub-label {
+      font-size: 7px;
+      font-weight: 900;
+      margin-top: 1px;
+      letter-spacing: 0.2px;
+      height: 8px;
+    }
+
+    .cal-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      font-size: 11px;
+      color: var(--ios-sub);
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--ios-border);
+    }
+
+    .cal-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+    }
+
+    /* History Tab */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat-tile {
+      background: var(--ios-card);
+      border-radius: 16px;
+      padding: 12px 10px;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 150px;
+      padding: 20px 8px 6px;
+      border-bottom: 1px solid var(--ios-border);
+      position: relative;
+    }
+
+    .chart-avg-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1.5px dashed #8e8e93;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .chart-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      z-index: 2;
+    }
+
+    .chart-bar {
+      width: 26px;
+      border-radius: 6px 6px 4px 4px;
+      background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
+    }
+
+    .history-item {
+      background: var(--ios-card);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: #e5e5ea;
+      border-radius: 99px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      height: 64px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--ios-border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 4px 8px calc(env(safe-area-inset-bottom, 12px) + 4px);
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      z-index: 50;
+    }
+
+    .tab-btn {
+      border: none;
+      background: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #8e8e93;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      color: var(--crimson);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-viewport">
+    <div class="nav-header">
+      <div class="nav-title" id="navTitle">Zyklus-Kalender</div>
+      <button class="today-jump-btn" onclick="jumpToToday()">Heute</button>
+    </div>
+
+    <div class="app-content" id="appContent">
+      <!-- Dynamischer Inhalt -->
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-0" onclick="switchTab(0)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Kalender</span>
+      </button>
+      <button class="tab-btn" id="tab-1" onclick="switchTab(1)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Verlauf</span>
+      </button>
+      <button class="tab-btn" id="tab-2" onclick="switchTab(2)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Einstellungen</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Service Worker Registration for PWA Offline Support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => console.log('SW registration failed:', err));
+      });
+    }
+
+    // ==================== LOCAL STORAGE PERSISTENCE ====================
+    const STORAGE_KEY = 'zyklustracker_periods_pwa';
+    const SETTINGS_KEY = 'zyklustracker_settings_pwa';
+
+    const today = startOfDay(new Date());
+    let currentTab = 0;
+    let displayedMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let selectedDate = new Date(today);
+
+    let defaultCycleLength = 28;
+    let defaultPeriodLength = 5;
+
+    // Load Settings
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        if (parsed.defaultCycleLength) defaultCycleLength = parsed.defaultCycleLength;
+        if (parsed.defaultPeriodLength) defaultPeriodLength = parsed.defaultPeriodLength;
+      } catch (e) {}
+    }
+
+    // Load Period Records (with realistic fallback)
+    let periodRecords = [];
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        periodRecords = parsed.map(p => ({
+          id: p.id,
+          startDate: new Date(p.startDate),
+          endDate: new Date(p.endDate)
+        }));
+      } catch (e) {}
+    }
+
+    if (!periodRecords || periodRecords.length === 0) {
+      periodRecords = [
+        { id: "p1", startDate: addDays(today, -121), endDate: addDays(today, -117) },
+        { id: "p2", startDate: addDays(today, -93),  endDate: addDays(today, -89) },
+        { id: "p3", startDate: addDays(today, -64),  endDate: addDays(today, -61) },
+        { id: "p4", startDate: addDays(today, -36),  endDate: addDays(today, -32) },
+        { id: "p5", startDate: addDays(today, -8),   endDate: addDays(today, -4) }
+      ];
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(periodRecords));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ defaultCycleLength, defaultPeriodLength }));
+    }
+
+    // ==================== HELPER FUNCTIONS ====================
+    function startOfDay(d) {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+    function addDays(d, days) {
+      const copy = new Date(d);
+      copy.setDate(copy.getDate() + days);
+      return startOfDay(copy);
+    }
+    function diffDays(a, b) {
+      return Math.round((startOfDay(b) - startOfDay(a)) / (1000 * 60 * 60 * 24));
+    }
+    function sameDay(a, b) {
+      return a.getFullYear() === b.getFullYear() &&
+             a.getMonth() === b.getMonth() &&
+             a.getDate() === b.getDate();
+    }
+    function formatDateShort(d) {
+      return d.toLocaleDateString("de-DE", { day: "2-digit", month: "short" });
+    }
+    function formatDateMedium(d) {
+      return d.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" });
+    }
+    function formatDateFull(d) {
+      return d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+    }
+    function dropSvg(size = 14) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`;
+    }
+
+    // ==================== CYCLE CALCULATOR ====================
+    function getSortedPeriods() {
+      return [...periodRecords].sort((a, b) => a.startDate - b.startDate);
+    }
+
+    function getRecordDuration(rec) {
+      return Math.max(1, diffDays(rec.startDate, rec.endDate) + 1);
+    }
+
+    function getCycleSummaries() {
+      const sorted = getSortedPeriods();
+      const summaries = [];
+      for (let i = 0; i < sorted.length; i++) {
+        const cur = sorted[i];
+        const isLast = (i === sorted.length - 1);
+        const pLen = getRecordDuration(cur);
+        if (isLast) {
+          summaries.push({
+            ...cur,
+            periodLength: pLen,
+            cycleEndDate: null,
+            cycleLength: null,
+            isCurrentCycle: true
+          });
+        } else {
+          const next = sorted[i + 1];
+          const cLen = Math.max(1, diffDays(cur.startDate, next.startDate));
+          summaries.push({
+            ...cur,
+            periodLength: pLen,
+            cycleEndDate: addDays(next.startDate, -1),
+            cycleLength: cLen,
+            isCurrentCycle: false
+          });
+        }
+      }
+      return summaries.reverse();
+    }
+
+    function getAverageCycleLength() {
+      const sorted = getSortedPeriods();
+      if (sorted.length < 2) return defaultCycleLength;
+      const lengths = [];
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const d = diffDays(sorted[i].startDate, sorted[i + 1].startDate);
+        if (d >= 15 && d <= 55) lengths.push(d);
+      }
+      if (!lengths.length) return defaultCycleLength;
+      return Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
+    }
+
+    function getAveragePeriodLength() {
+      if (!periodRecords.length) return defaultPeriodLength;
+      const sum = periodRecords.reduce((acc, r) => acc + getRecordDuration(r), 0);
+      return Math.round(sum / periodRecords.length);
+    }
+
+    function getCycleVariation() {
+      const summaries = getCycleSummaries().filter(s => s.cycleLength !== null);
+      if (summaries.length < 2) return 0;
+      const lens = summaries.map(s => s.cycleLength);
+      return Math.max(...lens) - Math.min(...lens);
+    }
+
+    function getCurrentCycleDay(refDate = today) {
+      const sorted = getSortedPeriods().filter(p => p.startDate <= refDate);
+      if (!sorted.length) return null;
+      const latest = sorted[sorted.length - 1];
+      return diffDays(latest.startDate, refDate) + 1;
+    }
+
+    function getNextPredictedStart() {
+      const sorted = getSortedPeriods();
+      if (!sorted.length) return null;
+      const latest = sorted[sorted.length - 1];
+      return addDays(latest.startDate, getAverageCycleLength());
+    }
+
+    function getOvulationDate() {
+      const next = getNextPredictedStart();
+      if (!next) return null;
+      return addDays(next, -14);
+    }
+
+    function getDayState(date, referenceMonth = displayedMonth) {
+      const target = startOfDay(date);
+      const avgCycle = getAverageCycleLength();
+      const avgPeriod = getAveragePeriodLength();
+
+      let isPeriodStart = false;
+      let isPeriodEnd = false;
+      let isPeriodDay = false;
+
+      for (const rec of periodRecords) {
+        if (sameDay(target, rec.startDate)) {
+          isPeriodStart = true;
+          isPeriodDay = true;
+        }
+        if (sameDay(target, rec.endDate)) {
+          isPeriodEnd = true;
+          isPeriodDay = true;
+        }
+        if (target >= rec.startDate && target <= rec.endDate) {
+          isPeriodDay = true;
+        }
+      }
+
+      let isPredictedStart = false;
+      let isPredictedPeriod = false;
+      let isOvulation = false;
+      let isFertile = false;
+
+      const sorted = getSortedPeriods();
+      if (sorted.length >= 2) {
+        for (let i = 0; i < sorted.length - 1; i++) {
+          const nextStart = sorted[i + 1].startDate;
+          const ov = addDays(nextStart, -14);
+          const fStart = addDays(ov, -5);
+          const fEnd = addDays(ov, 1);
+          if (sameDay(target, ov)) isOvulation = true;
+          else if (target >= fStart && target <= fEnd) isFertile = true;
+        }
+      }
+
+      if (sorted.length > 0) {
+        const latest = sorted[sorted.length - 1];
+        for (let mult = 1; mult <= 3; mult++) {
+          const predStart = addDays(latest.startDate, avgCycle * mult);
+          const predEnd = addDays(predStart, avgPeriod - 1);
+          const ov = addDays(predStart, -14);
+          const fStart = addDays(ov, -5);
+          const fEnd = addDays(ov, 1);
+
+          if (!isPeriodDay) {
+            if (sameDay(target, predStart)) {
+              isPredictedStart = true;
+              isPredictedPeriod = true;
+            } else if (target >= predStart && target <= predEnd) {
+              isPredictedPeriod = true;
+            }
+          }
+          if (sameDay(target, ov)) isOvulation = true;
+          else if (target >= fStart && target <= fEnd) isFertile = true;
+        }
+      }
+
+      const inMonth = target.getMonth() === referenceMonth.getMonth() &&
+                      target.getFullYear() === referenceMonth.getFullYear();
+
+      return {
+        date: target,
+        dayNumber: target.getDate(),
+        inMonth,
+        isToday: sameDay(target, today),
+        isPeriodStart,
+        isPeriodEnd,
+        isPeriodDay,
+        isPredictedStart,
+        isPredictedPeriod,
+        isOvulation: isOvulation && !isPeriodDay,
+        isFertile: isFertile && !isPeriodDay,
+        cycleDay: getCurrentCycleDay(target)
+      };
+    }
+
+    function getPhaseInfo(date = today) {
+      const st = getDayState(date);
+      if (st.isPeriodDay) return { name: "Menstruation", color: "#db1a3b" };
+      if (st.isOvulation) return { name: "Eisprungtag", color: "#8552d9" };
+      if (st.isFertile) return { name: "Fruchtbare Phase", color: "#29a69e" };
+      const ov = getOvulationDate();
+      if (ov && date < ov) return { name: "Follikelphase", color: "#ec7088" };
+      return { name: "Lutealphase", color: "#e08f3d" };
+    }
+
+    // ==================== ACTIONS ====================
+    function togglePeriodStartOnSelectedDate() {
+      const target = startOfDay(selectedDate);
+      const idx = periodRecords.findIndex(r => sameDay(r.startDate, target));
+      if (idx >= 0) {
+        periodRecords.splice(idx, 1);
+      } else {
+        const avgP = getAveragePeriodLength();
+        periodRecords.push({
+          id: "p_" + Date.now(),
+          startDate: target,
+          endDate: addDays(target, avgP - 1)
+        });
+      }
+      saveState();
+      renderAll();
+    }
+
+    function setPeriodEndOnSelectedDate() {
+      const endTarget = startOfDay(selectedDate);
+      const candidates = periodRecords
+        .filter(r => {
+          const diff = diffDays(r.startDate, endTarget);
+          return diff >= 0 && diff <= 16;
+        })
+        .sort((a, b) => a.startDate - b.startDate);
+
+      if (candidates.length > 0) {
+        const match = candidates[candidates.length - 1];
+        match.endDate = endTarget;
+      } else {
+        const avgP = getAveragePeriodLength();
+        periodRecords.push({
+          id: "p_" + Date.now(),
+          startDate: addDays(endTarget, -(avgP - 1)),
+          endDate: endTarget
+        });
+      }
+      saveState();
+      renderAll();
+    }
+
+    function deleteCycleById(id) {
+      periodRecords = periodRecords.filter(r => r.id !== id);
+      saveState();
+      renderAll();
+    }
+
+    function changeMonth(delta) {
+      displayedMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + delta, 1);
+      renderAll();
+    }
+
+    function jumpToToday() {
+      displayedMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      selectedDate = new Date(today);
+      if (currentTab !== 0) switchTab(0);
+      else renderAll();
+    }
+
+    function selectCalendarDay(ts) {
+      selectedDate = startOfDay(new Date(ts));
+      renderAll();
+    }
+
+    function switchTab(tabIndex) {
+      currentTab = tabIndex;
+      for (let i = 0; i < 3; i++) {
+        document.getElementById(`tab-${i}`).classList.toggle("active", i === tabIndex);
+      }
+      const titles = ["Zyklus-Kalender", "Zyklus-Verlauf", "Einstellungen"];
+      document.getElementById("navTitle").textContent = titles[tabIndex];
+      renderAll();
+    }
+
+    // ==================== RENDERING ====================
+    function renderAll() {
+      const container = document.getElementById("appContent");
+      if (currentTab === 0) container.innerHTML = renderCalendarHomeTab();
+      else if (currentTab === 1) container.innerHTML = renderHistoryTab();
+      else container.innerHTML = renderSettingsTab();
+    }
+
+    // ---- TAB 0: KALENDER-STARTSEITE ----
+    function renderCalendarHomeTab() {
+      const cDay = getCurrentCycleDay(today) || 1;
+      const phase = getPhaseInfo(today);
+      const nextStart = getNextPredictedStart();
+      const daysUntil = nextStart ? diffDays(today, nextStart) : 0;
+      const sorted = getSortedPeriods();
+      const latest = sorted.length ? sorted[sorted.length - 1] : null;
+
+      const year = displayedMonth.getFullYear();
+      const month = displayedMonth.getMonth();
+      const monthLabel = displayedMonth.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+
+      const firstDay = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const leadingEmpty = (firstDay.getDay() + 6) % 7;
+
+      let cellsHtml = "";
+      for (let i = 0; i < leadingEmpty; i++) {
+        cellsHtml += `<div></div>`;
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const curDate = new Date(year, month, d);
+        const st = getDayState(curDate, displayedMonth);
+        const isSel = sameDay(curDate, selectedDate);
+
+        let circleClass = "cal-circle";
+        if (st.isPeriodStart) circleClass += " period-start";
+        else if (st.isPeriodEnd) circleClass += " period-end";
+        else if (st.isPeriodDay) circleClass += " period-day";
+        else if (st.isPredictedPeriod) circleClass += " pred-period";
+        else if (st.isOvulation) circleClass += " ovulation";
+        else if (st.isFertile) circleClass += " fertile";
+
+        let subHtml = "";
+        if (st.isPeriodStart) subHtml = `<span style="color:var(--crimson);">START</span>`;
+        else if (st.isPeriodEnd) subHtml = `<span style="color:var(--crimson-dark);">ENDE</span>`;
+        else if (st.isPredictedStart) subHtml = `<span style="color:var(--crimson);">💧</span>`;
+        else if (st.isOvulation) subHtml = `<span style="color:var(--ovulation);">★</span>`;
+
+        cellsHtml += `
+          <div class="cal-cell ${isSel ? "selected" : ""}" onclick="selectCalendarDay(${curDate.getTime()})">
+            <div class="${circleClass}">
+              ${st.isPeriodStart ? `${dropSvg(10)}<span style="font-size:9px; line-height:1;">${d}</span>` : d}
+            </div>
+            <div class="cal-sub-label">${subHtml}</div>
+          </div>
+        `;
+      }
+
+      const selState = getDayState(selectedDate, displayedMonth);
+
+      return `
+        <div class="ios-card" style="display:flex; align-items:center; gap:12px;">
+          <div class="red-symbol-prominent">
+            <div class="red-symbol-prominent-inner">
+              ${dropSvg(13)}
+              <span>TAG 1</span>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <strong style="font-size:18px; font-weight:900;">Zyklustag ${cDay}</strong>
+              <span style="font-size:11px; font-weight:800; color:${phase.color};">• ${phase.name}</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--ios-sub); margin-top:2px;">
+              ${latest ? `Letzte Blutung: ${formatDateShort(latest.startDate)} – ${formatDateShort(latest.endDate)}` : "Noch keine Blutung eingetragen"}
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:17px; font-weight:900; color:var(--crimson);">${Math.max(0, daysUntil)} T.</div>
+            <div style="font-size:9.5px; font-weight:700; color:var(--ios-sub);">bis Periode</div>
+          </div>
+        </div>
+
+        <div class="ios-card">
+          <div class="cal-header">
+            <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+            <strong style="font-size:17px; text-transform:capitalize;">${monthLabel}</strong>
+            <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+          </div>
+
+          <div class="cal-weekdays">
+            <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+          </div>
+
+          <div class="cal-days">
+            ${cellsHtml}
+          </div>
+
+          <div class="cal-legend">
+            <div class="cal-legend-item">
+              <span class="red-symbol-badge" style="width:16px; height:16px;">${dropSvg(8)}</span>
+              <span>Start (Tag 1)</span>
+            </div>
+            <div class="cal-legend-item">
+              <span style="width:12px; height:12px; border-radius:50%; background:var(--crimson-dark); display:inline-block;"></span>
+              <span>Ende</span>
+            </div>
+            <div class="cal-legend-item">
+              <span style="width:12px; height:12px; border-radius:50%; background:rgba(219,26,59,0.22); display:inline-block;"></span>
+              <span>Periode</span>
+            </div>
+            <div class="cal-legend-item">
+              <span style="width:12px; height:12px; border-radius:50%; border:1.4px dashed var(--crimson); display:inline-block;"></span>
+              <span>Prognose</span>
+            </div>
+            <div class="cal-legend-item">
+              <span style="color:var(--ovulation); font-weight:900;">★</span>
+              <span>Eisprung</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ios-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div>
+              <div style="font-size:14px; font-weight:800;">${formatDateFull(selectedDate)}</div>
+              <div style="font-size:11.5px; color:var(--ios-sub);">
+                ${selState.cycleDay ? `Zyklustag ${selState.cycleDay}` : "Vor dem 1. Zyklus"}
+              </div>
+            </div>
+            ${selState.isPeriodStart
+              ? `<span class="tag-pill">START • TAG 1</span>`
+              : (selState.isPeriodEnd ? `<span class="tag-pill" style="background:rgba(158,10,36,0.15); color:var(--crimson-dark);">ENDE DER BLUTUNG</span>` : "")
+            }
+          </div>
+
+          <!-- Button 1: Start der Menstruation -->
+          <button class="action-btn ${selState.isPeriodStart ? "start-active" : "start-primary"}" onclick="togglePeriodStartOnSelectedDate()">
+            <span style="display:flex; align-items:center; gap:9px;">
+              <span class="red-symbol-badge" style="width:24px; height:24px;">${dropSvg(12)}</span>
+              <span>${selState.isPeriodStart ? "Start der Menstruation entfernen" : "Start der Menstruation festlegen"}</span>
+            </span>
+            <span>${selState.isPeriodStart ? "✕" : "Tag 1"}</span>
+          </button>
+
+          <!-- Button 2: Ende der Menstruation -->
+          <button class="action-btn end-btn" onclick="setPeriodEndOnSelectedDate()">
+            <span style="display:flex; align-items:center; gap:9px;">
+              <span style="width:24px; height:24px; border-radius:50%; background:var(--crimson-dark); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11px;">⚑</span>
+              <span>${selState.isPeriodEnd ? "Als Ende der Menstruation gesetzt" : "Ende der Menstruation festlegen"}</span>
+            </span>
+            <span>${selState.isPeriodEnd ? "✓" : "Ende"}</span>
+          </button>
+        </div>
+      `;
+    }
+
+    // ---- TAB 1: ZYKLUS-VERLAUF ----
+    function renderHistoryTab() {
+      const summaries = getCycleSummaries();
+      const completed = summaries.filter(s => s.cycleLength !== null).slice().reverse();
+      const avgCycle = getAverageCycleLength();
+      const avgPeriod = getAveragePeriodLength();
+      const variation = getCycleVariation();
+      const avgBottomPercent = Math.min(90, Math.round((avgCycle / 40) * 100));
+
+      return `
+        <div class="stats-row">
+          <div class="stat-tile">
+            <div style="font-size:10px; font-weight:700; color:var(--ios-sub);">🔄 Ø Zyklus</div>
+            <div style="font-size:18px; font-weight:900; margin-top:4px;">${avgCycle} Tage</div>
+            <div style="font-size:10px; color:var(--ios-sub);">Norm: 21–35 T.</div>
+          </div>
+          <div class="stat-tile">
+            <div style="font-size:10px; font-weight:700; color:var(--crimson);">💧 Ø Blutung</div>
+            <div style="font-size:18px; font-weight:900; margin-top:4px;">${avgPeriod} Tage</div>
+            <div style="font-size:10px; color:var(--ios-sub);">Norm: 3–7 T.</div>
+          </div>
+          <div class="stat-tile">
+            <div style="font-size:10px; font-weight:700; color:var(--fertile);">📈 Schwankung</div>
+            <div style="font-size:18px; font-weight:900; margin-top:4px;">±${variation} T.</div>
+            <div style="font-size:10px; color:var(--ios-sub);">${variation <= 7 ? "Regelmäßig" : "Variabel"}</div>
+          </div>
+        </div>
+
+        <div class="ios-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:15px; font-weight:800;">Zykluslängen im Verlauf</div>
+              <div style="font-size:11px; color:var(--ios-sub);">Vergangene abgeschlossene Menstruationszyklen</div>
+            </div>
+            <span class="red-symbol-badge" style="width:24px; height:24px;">${dropSvg(12)}</span>
+          </div>
+
+          <div class="chart-bars">
+            <div class="chart-avg-line" style="bottom:${avgBottomPercent}%;"></div>
+            ${completed.map(item => {
+              const h = Math.max(24, Math.min(115, item.cycleLength * 3.1));
+              const mLabel = item.startDate.toLocaleDateString("de-DE", { month: "short", year: "2-digit" });
+              return `
+                <div class="chart-bar-col">
+                  <span style="font-size:11px; font-weight:800;">${item.cycleLength}</span>
+                  <div class="chart-bar" style="height:${h}px;"></div>
+                  <span style="font-size:10px; color:var(--ios-sub);">${mLabel}</span>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+
+        <div style="font-size:15px; font-weight:800; padding:0 4px;">
+          Vergangene &amp; aktuelle Zyklen (${summaries.length})
+        </div>
+
+        ${summaries.map(s => {
+          const total = s.cycleLength || avgCycle;
+          const redPct = Math.min(100, Math.round((s.periodLength / total) * 100));
+          return `
+            <div class="history-item">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="red-symbol-badge" style="width:32px; height:32px;">${dropSvg(15)}</span>
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <strong style="font-size:13.5px;">Start: ${formatDateMedium(s.startDate)}</strong>
+                    ${s.isCurrentCycle ? `<span class="tag-pill">AKTUELL</span>` : ""}
+                  </div>
+                  <div style="font-size:11.5px; color:var(--ios-sub); margin-top:2px;">
+                    Ende der Blutung: <strong>${formatDateMedium(s.endDate)}</strong>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:16px; font-weight:900;">
+                    ${s.cycleLength ? `${s.cycleLength} Tage` : `<span style="color:var(--crimson);">Aktiv</span>`}
+                  </div>
+                  <div style="font-size:11px; color:var(--crimson); font-weight:700;">${s.periodLength} T. Blutung</div>
+                </div>
+              </div>
+
+              <div class="progress-bar-bg">
+                <div style="width:${redPct}%; background:linear-gradient(90deg, var(--crimson), var(--crimson-dark)); border-radius:99px;"></div>
+              </div>
+
+              ${summaries.length > 1 ? `
+                <div style="display:flex; justify-content:flex-end;">
+                  <button onclick="deleteCycleById('${s.id}')" style="border:none; background:none; color:var(--crimson); font-weight:700; cursor:pointer; font-size:11px;">
+                    Zyklus löschen
+                  </button>
+                </div>
+              ` : ""}
+            </div>
+          `;
+        }).join("")}
+      `;
+    }
+
+    // ---- TAB 2: EINSTELLUNGEN ----
+    function renderSettingsTab() {
+      return `
+        <div class="ios-card">
+          <div style="font-size:15px; font-weight:800; margin-bottom:8px;">Zyklus-Standardwerte</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--ios-border);">
+            <span style="font-size:13.5px; font-weight:600;">Standard-Zykluslänge: <strong>${defaultCycleLength} Tage</strong></span>
+            <div style="display:flex; gap:6px;">
+              <button class="cal-nav-btn" onclick="defaultCycleLength=Math.max(21,defaultCycleLength-1);saveState();renderAll();">−</button>
+              <button class="cal-nav-btn" onclick="defaultCycleLength=Math.min(40,defaultCycleLength+1);saveState();renderAll();">+</button>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
+            <span style="font-size:13.5px; font-weight:600;">Standard-Blutungsdauer: <strong>${defaultPeriodLength} Tage</strong></span>
+            <div style="display:flex; gap:6px;">
+              <button class="cal-nav-btn" onclick="defaultPeriodLength=Math.max(2,defaultPeriodLength-1);saveState();renderAll();">−</button>
+              <button class="cal-nav-btn" onclick="defaultPeriodLength=Math.min(10,defaultPeriodLength+1);saveState();renderAll();">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ios-card">
+          <div style="font-size:15px; font-weight:800; margin-bottom:8px;">PWA-Installation auf iPhone</div>
+          <div style="font-size:12.5px; color:var(--ios-sub); line-height:1.6;">
+            1. Öffne die Seite im <strong>Safari-Browser</strong> auf deinem iPhone.<br/>
+            2. Tippe unten in der Mitte auf das <strong>Teilen-Symbol</strong> (Quadrat mit Pfeil nach oben).<br/>
+            3. Wähle <strong>„Zum Home-Bildschirm“</strong> und tippe auf <strong>Hinzufügen</strong>.<br/>
+            4. Die App erscheint mit eigenem App-Icon auf deinem Homescreen und läuft dauerhaft offline ohne Ablaufdatum!
+          </div>
+        </div>
+      `;
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
+
